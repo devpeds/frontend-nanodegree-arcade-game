@@ -1,10 +1,10 @@
 // Now write your own player class
 // player class : update(), render(), handleInput() method.
-var Player = function() {
+var Player = function(character) {
   // image
-  this.sprite = 'images/char-boy.png';
+  this.sprite = character.getSprite("boy");
   // location
-  this.startPosition = { x: 200, y:380 };
+  this.startPosition = { x: 200, y: 390 };
   this.x = this.startPosition.x;
   this.y = this.startPosition.y;
   // movement
@@ -14,25 +14,35 @@ var Player = function() {
     maxX: 400,
     minX: 0,
     maxY: 380,
-    minY: 0
+    minY: -10
   };
 };
-
-Player.prototype.isCollision = function(enemy) {
-  return (this.x>enemy.x-70 && this.x<enemy.x+70 && this.y===enemy.y);
+// check player to collide with enemies
+Player.prototype.isCollision = function(position) {
+  return (
+    this.x > position.x - 70 &&
+    this.x < position.x + 70 &&
+    this.y === position.y
+  );
 };
+// send player start position when he get level-up or die
 Player.prototype.goStartPosition = function() {
   this.x = this.startPosition.x;
   this.y = this.startPosition.y;
-}
-Player.prototype.update = function () {
-  if(this.y < this.movement.minY) {
-    this.goStartPosition();
-  }
 };
+// check player succeed arriving at the goal
+Player.prototype.isSuccess = function () {
+  return this.y < this.movement.minY;
+};
+// update player status
+// Player.prototype.update = function () {
+//   this.goStartPosition();
+// };
+// render player image, life and level information.
 Player.prototype.render = function () {
   ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
+// move player
 Player.prototype.handleInput = function (dir) {
   if(dir === 'right') {
     if(this.x < this.movement.maxX) { this.x += this.movement.x; }

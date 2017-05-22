@@ -1,9 +1,11 @@
 // Now instantiate your objects.
-var allEnemies = [new Enemy(1),
+var gameSystem = new GameSystem(),
+    allEnemies = [new Enemy(1),
                   new Enemy(2),
                   new Enemy(3),
+                  new Enemy(4)
                   ],
-    player = new Player();
+    player = new Player(new Character());
 
 (function() {
   // This listens for key presses and sends the keys to your

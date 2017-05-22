@@ -27,7 +27,7 @@ var Engine = (function(global) {
 
     canvas.width = 505;
     canvas.height = 606;
-    doc.body.appendChild(canvas);
+    doc.getElementById('board').appendChild(canvas);
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -81,6 +81,8 @@ var Engine = (function(global) {
     function update(dt) {
         updateEntities(dt);
         checkCollisions();
+        levelUp();
+        resetGame();
     }
 
     /* This is called by the update function and loops through all of the
@@ -94,15 +96,38 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        player.update();
+        if(player.isSuccess()) {
+          gameSystem.update();
+          player.goStartPosition();
+        }
     }
     function checkCollisions() {
-
         allEnemies.forEach(function(enemy) {
           if(player.isCollision(enemy.getPosition())) {
+            gameSystem.playerDie();
             player.goStartPosition();
           }
         });
+    }
+    function levelUp() {
+        if (gameSystem.isLevelChange()) {
+          if (gameSystem.getLevel()%5 === 0) {
+            if (allEnemies.length <= 8) {
+              allEnemies.push(new Enemy());
+            }
+          }
+          gameSystem.levelUp();
+        }
+    }
+    function resetGame() {
+        if(gameSystem.isGameOver()) {
+          gameSystem.reset();
+          allEnemies = [new Enemy(1),
+                        new Enemy(2),
+                        new Enemy(3),
+                        new Enemy(4)
+                        ];
+        }
     }
     /* This function initially draws the "game level", it will then call
      * the renderEntities function. Remember, this function is called every
@@ -115,12 +140,12 @@ var Engine = (function(global) {
          * for that particular row of the game level.
          */
         var rowImages = [
-                'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 3 of stone
-                'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
-                'images/grass-block.png'    // Row 2 of 2 of grass
+                'images/grass-block.png',   // Top row is grass
+                'images/stone-block.png',   // Row 1 of 4 of stone
+                'images/stone-block.png',   // Row 2 of 4 of stone
+                'images/stone-block.png',   // Row 3 of 4 of stone
+                'images/stone-block.png',   // Row 4 of 4 of grass
+                'images/grass-block.png'    // Bottom row of grass
             ],
             numRows = 6,
             numCols = 5,
@@ -154,6 +179,7 @@ var Engine = (function(global) {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
+        gameSystem.render();
         allEnemies.forEach(function(enemy) {
             enemy.render();
         });
@@ -178,7 +204,8 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/Heart.png'
     ]);
     Resources.onReady(init);
 
